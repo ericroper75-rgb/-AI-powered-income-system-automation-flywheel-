@@ -1,0 +1,2140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI-Powered Social Media & Business Automation System</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --black: #050507;
+    --surface: #0c0c10;
+    --surface2: #111116;
+    --border: rgba(255,255,255,0.06);
+    --border-bright: rgba(255,255,255,0.12);
+    --text: #f0f0f4;
+    --text-muted: #6b6b78;
+    --text-dim: #9999a8;
+    --accent: #00ff88;
+    --accent-dim: rgba(0,255,136,0.12);
+    --accent-glow: rgba(0,255,136,0.3);
+    --blue: #4d9fff;
+    --blue-dim: rgba(77,159,255,0.1);
+    --orange: #ff7a2f;
+    --purple: #9b6dff;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--black);
+    color: var(--text);
+    font-family: 'Syne', sans-serif;
+    overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* NOISE TEXTURE OVERLAY */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 9999;
+    opacity: 0.4;
+  }
+
+  /* SCROLLBAR */
+  ::-webkit-scrollbar { width: 4px; }
+  ::-webkit-scrollbar-track { background: var(--black); }
+  ::-webkit-scrollbar-thumb { background: var(--accent); border-radius: 2px; }
+
+  /* ─── STICKY NAV ─── */
+  nav {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 100;
+    padding: 16px 40px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: rgba(5,5,7,0.85);
+    backdrop-filter: blur(20px);
+    border-bottom: 1px solid var(--border);
+    transition: all 0.3s ease;
+  }
+
+  .nav-logo {
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--accent);
+  }
+
+  .nav-logo span { color: var(--text); }
+
+  nav .nav-cta {
+    background: var(--accent);
+    color: #000;
+    font-family: 'Syne', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 10px 22px;
+    border: none;
+    cursor: pointer;
+    text-decoration: none;
+    transition: all 0.2s ease;
+  }
+
+  nav .nav-cta:hover {
+    background: #fff;
+    transform: translateY(-1px);
+    box-shadow: 0 8px 30px var(--accent-glow);
+  }
+
+  /* ─── HERO ─── */
+  .hero {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    position: relative;
+    padding: 140px 40px 80px;
+    overflow: hidden;
+  }
+
+  .hero-grid-bg {
+    position: absolute;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(0,255,136,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,255,136,0.03) 1px, transparent 1px);
+    background-size: 60px 60px;
+    mask-image: radial-gradient(ellipse 80% 60% at 50% 0%, black 30%, transparent 100%);
+  }
+
+  .hero-glow {
+    position: absolute;
+    top: -200px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 800px;
+    height: 600px;
+    background: radial-gradient(ellipse, rgba(0,255,136,0.08) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  .hero-glow-2 {
+    position: absolute;
+    bottom: -100px;
+    right: -200px;
+    width: 600px;
+    height: 400px;
+    background: radial-gradient(ellipse, rgba(77,159,255,0.06) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  .hero-inner {
+    max-width: 1100px;
+    margin: 0 auto;
+    width: 100%;
+    position: relative;
+  }
+
+  .hero-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--accent-dim);
+    border: 1px solid rgba(0,255,136,0.2);
+    padding: 6px 14px;
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 32px;
+    animation: fadeUp 0.6s ease both;
+  }
+
+  .hero-badge::before {
+    content: '';
+    width: 6px;
+    height: 6px;
+    background: var(--accent);
+    border-radius: 50%;
+    animation: pulse 2s infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.5; transform: scale(1.5); }
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .hero h1 {
+    font-size: clamp(48px, 7vw, 88px);
+    font-weight: 800;
+    line-height: 1.0;
+    letter-spacing: -0.03em;
+    margin-bottom: 28px;
+    animation: fadeUp 0.6s ease 0.1s both;
+  }
+
+  .hero h1 em {
+    font-family: 'Instrument Serif', serif;
+    font-style: italic;
+    font-weight: 400;
+    color: var(--accent);
+  }
+
+  .hero-sub {
+    font-size: clamp(16px, 2vw, 20px);
+    font-weight: 400;
+    color: var(--text-dim);
+    max-width: 640px;
+    line-height: 1.6;
+    margin-bottom: 48px;
+    animation: fadeUp 0.6s ease 0.2s both;
+  }
+
+  .hero-sub strong { color: var(--text); font-weight: 600; }
+
+  .hero-actions {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    flex-wrap: wrap;
+    margin-bottom: 64px;
+    animation: fadeUp 0.6s ease 0.3s both;
+  }
+
+  .btn-primary {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    background: var(--accent);
+    color: #000;
+    font-family: 'Syne', sans-serif;
+    font-size: 15px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    padding: 18px 36px;
+    text-decoration: none;
+    border: none;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .btn-primary::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, rgba(255,255,255,0.2), transparent);
+    opacity: 0;
+    transition: opacity 0.2s;
+  }
+
+  .btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 16px 50px var(--accent-glow);
+  }
+  .btn-primary:hover::after { opacity: 1; }
+
+  .btn-secondary {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--text-dim);
+    font-size: 14px;
+    font-weight: 500;
+    letter-spacing: 0.05em;
+    text-decoration: none;
+    border-bottom: 1px solid var(--border-bright);
+    padding-bottom: 2px;
+    transition: all 0.2s ease;
+  }
+
+  .btn-secondary:hover { color: var(--text); border-color: var(--text); }
+
+  .price-anchor {
+    font-family: 'DM Mono', monospace;
+    font-size: 13px;
+    color: var(--text-muted);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    animation: fadeUp 0.6s ease 0.35s both;
+  }
+
+  .price-anchor .strike {
+    text-decoration: line-through;
+    color: var(--text-muted);
+  }
+
+  .price-anchor .real-price {
+    color: var(--accent);
+    font-weight: 500;
+    font-size: 16px;
+  }
+
+  .hero-proof-bar {
+    display: flex;
+    align-items: center;
+    gap: 32px;
+    flex-wrap: wrap;
+    padding-top: 32px;
+    border-top: 1px solid var(--border);
+    animation: fadeUp 0.6s ease 0.4s both;
+  }
+
+  .proof-item {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .proof-num {
+    font-size: 22px;
+    font-weight: 800;
+    color: var(--text);
+    letter-spacing: -0.02em;
+  }
+
+  .proof-num span { color: var(--accent); }
+
+  .proof-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+  }
+
+  /* ─── SECTION UTILITIES ─── */
+  section {
+    padding: 100px 40px;
+    position: relative;
+  }
+
+  .container {
+    max-width: 1100px;
+    margin: 0 auto;
+    width: 100%;
+  }
+
+  .section-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .section-label::before {
+    content: '';
+    width: 24px;
+    height: 1px;
+    background: var(--accent);
+  }
+
+  .section-title {
+    font-size: clamp(32px, 4vw, 52px);
+    font-weight: 800;
+    line-height: 1.1;
+    letter-spacing: -0.025em;
+    margin-bottom: 20px;
+  }
+
+  .section-title em {
+    font-family: 'Instrument Serif', serif;
+    font-style: italic;
+    font-weight: 400;
+    color: var(--accent);
+  }
+
+  .section-sub {
+    font-size: 18px;
+    color: var(--text-dim);
+    max-width: 560px;
+    line-height: 1.6;
+    margin-bottom: 64px;
+  }
+
+  /* ─── DIVIDER ─── */
+  .divider {
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--border-bright), transparent);
+  }
+
+  /* ─── PROBLEM → TRANSFORMATION ─── */
+  .problem-section { background: var(--surface); }
+
+  .before-after {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    gap: 0;
+    align-items: start;
+  }
+
+  .ba-col { padding: 40px; }
+
+  .ba-col.before {
+    background: rgba(255,60,60,0.04);
+    border: 1px solid rgba(255,60,60,0.1);
+  }
+
+  .ba-col.after {
+    background: var(--accent-dim);
+    border: 1px solid rgba(0,255,136,0.15);
+  }
+
+  .ba-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    margin-bottom: 24px;
+    font-weight: 500;
+  }
+
+  .ba-col.before .ba-label { color: #ff6060; }
+  .ba-col.after .ba-label { color: var(--accent); }
+
+  .ba-divider {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 0;
+    position: relative;
+  }
+
+  .ba-arrow {
+    width: 48px;
+    height: 48px;
+    background: var(--accent);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    color: #000;
+    font-weight: 800;
+    flex-shrink: 0;
+  }
+
+  .ba-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    margin-bottom: 16px;
+    font-size: 15px;
+    line-height: 1.5;
+    color: var(--text-dim);
+  }
+
+  .ba-col.before .ba-item::before {
+    content: '✕';
+    color: #ff6060;
+    font-weight: 700;
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+
+  .ba-col.after .ba-item::before {
+    content: '✓';
+    color: var(--accent);
+    font-weight: 700;
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+
+  .ba-col.after .ba-item { color: var(--text); }
+
+  /* ─── MECHANISM ─── */
+  .mechanism-section { background: var(--black); }
+
+  .flywheel-container {
+    position: relative;
+    padding: 60px 0;
+  }
+
+  .flywheel-center {
+    width: 180px;
+    height: 180px;
+    background: var(--accent);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    margin: 0 auto 60px;
+    position: relative;
+    animation: spin-slow 20s linear infinite;
+    clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+  }
+
+  @keyframes spin-slow {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+  }
+
+  .flywheel-center-inner {
+    animation: spin-slow 20s linear infinite reverse;
+    text-align: center;
+  }
+
+  .flywheel-center-inner .fw-title {
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #000;
+    line-height: 1.2;
+  }
+
+  .flywheel-steps {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 2px;
+  }
+
+  .fw-step {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    padding: 32px 28px;
+    position: relative;
+    overflow: hidden;
+    transition: all 0.3s ease;
+  }
+
+  .fw-step::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: var(--accent);
+    transform: scaleX(0);
+    transition: transform 0.3s ease;
+    transform-origin: left;
+  }
+
+  .fw-step:hover::before { transform: scaleX(1); }
+
+  .fw-step:hover {
+    border-color: var(--border-bright);
+    transform: translateY(-4px);
+    box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+  }
+
+  .fw-num {
+    font-family: 'DM Mono', monospace;
+    font-size: 48px;
+    font-weight: 300;
+    color: rgba(0,255,136,0.12);
+    line-height: 1;
+    margin-bottom: 16px;
+  }
+
+  .fw-step h3 {
+    font-size: 16px;
+    font-weight: 700;
+    margin-bottom: 10px;
+    letter-spacing: -0.01em;
+  }
+
+  .fw-step p {
+    font-size: 14px;
+    color: var(--text-dim);
+    line-height: 1.6;
+  }
+
+  /* ─── MODULES ─── */
+  .modules-section { background: var(--surface); }
+
+  .modules-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 2px;
+  }
+
+  .module-card {
+    background: var(--black);
+    border: 1px solid var(--border);
+    padding: 40px;
+    position: relative;
+    overflow: hidden;
+    transition: all 0.3s ease;
+    cursor: default;
+  }
+
+  .module-card::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, var(--accent-dim), transparent 60%);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+
+  .module-card:hover::after { opacity: 1; }
+
+  .module-card:hover {
+    border-color: rgba(0,255,136,0.2);
+    transform: translateY(-2px);
+    box-shadow: 0 24px 60px rgba(0,0,0,0.6);
+  }
+
+  .module-num {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.15em;
+    color: var(--accent);
+    margin-bottom: 20px;
+    position: relative;
+    z-index: 1;
+  }
+
+  .module-card h3 {
+    font-size: 20px;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    margin-bottom: 12px;
+    position: relative;
+    z-index: 1;
+  }
+
+  .module-outcome {
+    font-size: 14px;
+    color: var(--text-dim);
+    line-height: 1.6;
+    margin-bottom: 24px;
+    position: relative;
+    z-index: 1;
+  }
+
+  .module-deliverable {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    background: var(--accent-dim);
+    border: 1px solid rgba(0,255,136,0.1);
+    padding: 12px 16px;
+    font-size: 13px;
+    color: var(--text);
+    line-height: 1.4;
+    position: relative;
+    z-index: 1;
+  }
+
+  .module-deliverable span:first-child {
+    color: var(--accent);
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+
+  /* ─── HOW IT WORKS ─── */
+  .workflow-section { background: var(--black); }
+
+  .week-timeline {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    position: relative;
+  }
+
+  .week-timeline::before {
+    content: '';
+    position: absolute;
+    left: 32px;
+    top: 0;
+    bottom: 0;
+    width: 1px;
+    background: linear-gradient(180deg, var(--accent), transparent);
+  }
+
+  .week-item {
+    display: grid;
+    grid-template-columns: 64px 1fr;
+    gap: 32px;
+    padding: 32px 0;
+    border-bottom: 1px solid var(--border);
+    align-items: start;
+  }
+
+  .week-dot {
+    width: 64px;
+    height: 64px;
+    background: var(--surface2);
+    border: 1px solid var(--border-bright);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    color: var(--accent);
+    font-weight: 500;
+    letter-spacing: 0.05em;
+    flex-shrink: 0;
+    position: relative;
+    z-index: 1;
+    transition: all 0.3s ease;
+  }
+
+  .week-item:hover .week-dot {
+    background: var(--accent);
+    color: #000;
+    border-color: var(--accent);
+  }
+
+  .week-content h3 {
+    font-size: 18px;
+    font-weight: 700;
+    margin-bottom: 8px;
+    letter-spacing: -0.01em;
+  }
+
+  .week-content p {
+    font-size: 14px;
+    color: var(--text-dim);
+    line-height: 1.6;
+  }
+
+  .week-tags {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-top: 12px;
+  }
+
+  .week-tag {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 4px 10px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    color: var(--text-muted);
+  }
+
+  /* ─── TOOL STACK ─── */
+  .tools-section { background: var(--surface); }
+
+  .tools-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 2px;
+  }
+
+  .tool-card {
+    background: var(--black);
+    border: 1px solid var(--border);
+    padding: 28px 24px;
+    transition: all 0.3s ease;
+  }
+
+  .tool-card:hover {
+    border-color: var(--border-bright);
+    transform: translateY(-2px);
+  }
+
+  .tool-icon {
+    font-size: 28px;
+    margin-bottom: 12px;
+    display: block;
+  }
+
+  .tool-name {
+    font-size: 15px;
+    font-weight: 700;
+    margin-bottom: 4px;
+  }
+
+  .tool-purpose {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--text-muted);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .tool-tag {
+    margin-top: 14px;
+    font-size: 11px;
+    color: var(--accent);
+    font-weight: 600;
+  }
+
+  /* ─── MONETIZATION ─── */
+  .monetization-section { background: var(--black); }
+
+  .mono-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 2px;
+  }
+
+  .mono-card {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    padding: 48px 40px;
+    position: relative;
+    overflow: hidden;
+    transition: all 0.3s ease;
+  }
+
+  .mono-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+  }
+
+  .mono-card.agency::before { background: var(--accent); }
+  .mono-card.brand::before { background: var(--blue); }
+  .mono-card.affiliate::before { background: var(--orange); }
+  .mono-card.licensing::before { background: var(--purple); }
+
+  .mono-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 30px 80px rgba(0,0,0,0.5);
+  }
+
+  .mono-revenue {
+    font-family: 'DM Mono', monospace;
+    font-size: 32px;
+    font-weight: 300;
+    letter-spacing: -0.02em;
+    margin-bottom: 4px;
+  }
+
+  .mono-card.agency .mono-revenue { color: var(--accent); }
+  .mono-card.brand .mono-revenue { color: var(--blue); }
+  .mono-card.affiliate .mono-revenue { color: var(--orange); }
+  .mono-card.licensing .mono-revenue { color: var(--purple); }
+
+  .mono-period {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--text-muted);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-bottom: 20px;
+  }
+
+  .mono-card h3 {
+    font-size: 22px;
+    font-weight: 800;
+    margin-bottom: 12px;
+    letter-spacing: -0.02em;
+  }
+
+  .mono-card p {
+    font-size: 14px;
+    color: var(--text-dim);
+    line-height: 1.7;
+    margin-bottom: 24px;
+  }
+
+  .mono-items {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .mono-item {
+    font-size: 13px;
+    color: var(--text-dim);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .mono-item::before {
+    content: '→';
+    font-size: 12px;
+    flex-shrink: 0;
+  }
+
+  .mono-card.agency .mono-item::before { color: var(--accent); }
+  .mono-card.brand .mono-item::before { color: var(--blue); }
+  .mono-card.affiliate .mono-item::before { color: var(--orange); }
+  .mono-card.licensing .mono-item::before { color: var(--purple); }
+
+  /* ─── FUNNEL ─── */
+  .funnel-section { background: var(--surface); }
+
+  .funnel-flow {
+    display: flex;
+    align-items: stretch;
+    gap: 0;
+    overflow-x: auto;
+    padding-bottom: 8px;
+  }
+
+  .funnel-step {
+    flex: 1;
+    min-width: 180px;
+    background: var(--black);
+    border: 1px solid var(--border);
+    padding: 32px 24px;
+    position: relative;
+    transition: all 0.3s ease;
+  }
+
+  .funnel-step:not(:last-child)::after {
+    content: '→';
+    position: absolute;
+    right: -18px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--accent);
+    font-size: 18px;
+    font-weight: 700;
+    z-index: 2;
+    background: var(--black);
+    padding: 4px;
+  }
+
+  .funnel-step:hover {
+    border-color: rgba(0,255,136,0.2);
+    transform: translateY(-4px);
+  }
+
+  .funnel-type {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    margin-bottom: 12px;
+  }
+
+  .funnel-step:nth-child(1) .funnel-type { color: var(--blue); }
+  .funnel-step:nth-child(2) .funnel-type { color: var(--accent); }
+  .funnel-step:nth-child(3) .funnel-type { color: var(--orange); }
+  .funnel-step:nth-child(4) .funnel-type { color: var(--purple); }
+
+  .funnel-step h3 {
+    font-size: 16px;
+    font-weight: 700;
+    margin-bottom: 8px;
+    line-height: 1.2;
+  }
+
+  .funnel-step p {
+    font-size: 13px;
+    color: var(--text-muted);
+    line-height: 1.5;
+    margin-bottom: 16px;
+  }
+
+  .funnel-value {
+    font-family: 'DM Mono', monospace;
+    font-size: 13px;
+    font-weight: 500;
+  }
+
+  .funnel-step:nth-child(1) .funnel-value { color: var(--blue); }
+  .funnel-step:nth-child(2) .funnel-value { color: var(--accent); }
+  .funnel-step:nth-child(3) .funnel-value { color: var(--orange); }
+  .funnel-step:nth-child(4) .funnel-value { color: var(--purple); }
+
+  /* ─── SOCIAL PROOF ─── */
+  .proof-section { background: var(--black); }
+
+  .testimonials-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2px;
+    margin-bottom: 2px;
+  }
+
+  .testimonial {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    padding: 32px;
+    transition: all 0.3s ease;
+  }
+
+  .testimonial:hover {
+    border-color: var(--border-bright);
+    transform: translateY(-3px);
+  }
+
+  .stars {
+    color: var(--accent);
+    font-size: 13px;
+    letter-spacing: 2px;
+    margin-bottom: 16px;
+  }
+
+  .testimonial-text {
+    font-size: 15px;
+    color: var(--text);
+    line-height: 1.7;
+    margin-bottom: 24px;
+    font-style: italic;
+  }
+
+  .testimonial-author {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .author-avatar {
+    width: 40px;
+    height: 40px;
+    background: var(--accent-dim);
+    border: 1px solid rgba(0,255,136,0.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--accent);
+    flex-shrink: 0;
+  }
+
+  .author-name {
+    font-size: 14px;
+    font-weight: 700;
+  }
+
+  .author-role {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--text-muted);
+    letter-spacing: 0.08em;
+  }
+
+  .result-highlight {
+    background: var(--accent-dim);
+    border: 1px solid rgba(0,255,136,0.15);
+    padding: 4px 10px;
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--accent);
+    letter-spacing: 0.1em;
+    margin-top: 6px;
+    display: inline-block;
+  }
+
+  /* ─── OFFER STACK ─── */
+  .offer-section { background: var(--surface); }
+
+  .offer-grid {
+    display: grid;
+    grid-template-columns: 1fr 1.2fr 1fr;
+    gap: 2px;
+    align-items: start;
+  }
+
+  .offer-card {
+    background: var(--black);
+    border: 1px solid var(--border);
+    padding: 40px 32px;
+    transition: all 0.3s ease;
+  }
+
+  .offer-card.featured {
+    background: var(--surface2);
+    border-color: var(--accent);
+    position: relative;
+    transform: scale(1.02);
+  }
+
+  .offer-badge {
+    position: absolute;
+    top: -14px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--accent);
+    color: #000;
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    padding: 5px 16px;
+    white-space: nowrap;
+  }
+
+  .offer-tier {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-bottom: 16px;
+  }
+
+  .offer-price {
+    font-size: 48px;
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    line-height: 1;
+    margin-bottom: 4px;
+  }
+
+  .offer-card:nth-child(1) .offer-price { color: var(--text); }
+  .offer-card.featured .offer-price { color: var(--accent); }
+  .offer-card:nth-child(3) .offer-price { color: var(--purple); }
+
+  .offer-desc {
+    font-size: 13px;
+    color: var(--text-muted);
+    margin-bottom: 24px;
+    font-family: 'DM Mono', monospace;
+  }
+
+  .offer-name {
+    font-size: 18px;
+    font-weight: 700;
+    margin-bottom: 12px;
+    letter-spacing: -0.01em;
+    line-height: 1.3;
+  }
+
+  .offer-features {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 32px;
+  }
+
+  .offer-feature {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    font-size: 14px;
+    color: var(--text-dim);
+    line-height: 1.4;
+  }
+
+  .offer-feature::before {
+    content: '✓';
+    color: var(--accent);
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+
+  .offer-cta {
+    display: block;
+    text-align: center;
+    padding: 16px;
+    font-family: 'Syne', sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    text-decoration: none;
+    transition: all 0.2s ease;
+  }
+
+  .offer-card:nth-child(1) .offer-cta {
+    background: transparent;
+    border: 1px solid var(--border-bright);
+    color: var(--text);
+  }
+
+  .offer-card:nth-child(1) .offer-cta:hover {
+    border-color: var(--text);
+  }
+
+  .offer-card.featured .offer-cta {
+    background: var(--accent);
+    color: #000;
+  }
+
+  .offer-card.featured .offer-cta:hover {
+    box-shadow: 0 12px 40px var(--accent-glow);
+    transform: translateY(-2px);
+  }
+
+  .offer-card:nth-child(3) .offer-cta {
+    background: transparent;
+    border: 1px solid rgba(155,109,255,0.3);
+    color: var(--purple);
+  }
+
+  .offer-card:nth-child(3) .offer-cta:hover {
+    border-color: var(--purple);
+    background: rgba(155,109,255,0.08);
+  }
+
+  .guarantee-bar {
+    margin-top: 40px;
+    background: rgba(0,255,136,0.04);
+    border: 1px solid rgba(0,255,136,0.12);
+    padding: 28px 32px;
+    display: flex;
+    align-items: center;
+    gap: 24px;
+  }
+
+  .guarantee-icon {
+    font-size: 40px;
+    flex-shrink: 0;
+  }
+
+  .guarantee-text h4 {
+    font-size: 16px;
+    font-weight: 700;
+    margin-bottom: 6px;
+  }
+
+  .guarantee-text p {
+    font-size: 14px;
+    color: var(--text-dim);
+    line-height: 1.6;
+  }
+
+  /* ─── URGENCY ─── */
+  .urgency-section {
+    background: var(--black);
+    text-align: center;
+    padding: 120px 40px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .urgency-section::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse 60% 40% at 50% 50%, rgba(0,255,136,0.04) 0%, transparent 70%);
+  }
+
+  .urgency-section .container { position: relative; }
+
+  .urgency-section h2 {
+    font-size: clamp(40px, 5vw, 72px);
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    line-height: 1.05;
+    margin-bottom: 24px;
+  }
+
+  .urgency-section h2 em {
+    font-family: 'Instrument Serif', serif;
+    font-style: italic;
+    font-weight: 400;
+    color: var(--accent);
+  }
+
+  .urgency-section p {
+    font-size: 18px;
+    color: var(--text-dim);
+    max-width: 540px;
+    margin: 0 auto 48px;
+    line-height: 1.6;
+  }
+
+  .roi-row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 48px;
+    margin-bottom: 56px;
+    flex-wrap: wrap;
+  }
+
+  .roi-item {
+    text-align: center;
+  }
+
+  .roi-num {
+    font-size: 42px;
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    color: var(--accent);
+    line-height: 1;
+    margin-bottom: 4px;
+  }
+
+  .roi-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+  }
+
+  /* ─── FOOTER ─── */
+  footer {
+    padding: 48px 40px;
+    border-top: 1px solid var(--border);
+    background: var(--black);
+  }
+
+  .footer-inner {
+    max-width: 1100px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 16px;
+  }
+
+  .footer-logo {
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+  }
+
+  .footer-logo span { color: var(--accent); }
+
+  .footer-links {
+    display: flex;
+    gap: 24px;
+    flex-wrap: wrap;
+  }
+
+  .footer-links a {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    text-decoration: none;
+    transition: color 0.2s;
+  }
+
+  .footer-links a:hover { color: var(--text); }
+
+  .footer-copy {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--text-muted);
+    letter-spacing: 0.05em;
+  }
+
+  /* ─── RESPONSIVE ─── */
+  @media (max-width: 900px) {
+    nav { padding: 14px 20px; }
+    section { padding: 72px 20px; }
+    .hero { padding: 120px 20px 60px; }
+    .hero-proof-bar { gap: 20px; }
+    .before-after { grid-template-columns: 1fr; }
+    .ba-divider { padding: 0; transform: rotate(90deg); display: none; }
+    .flywheel-steps { grid-template-columns: 1fr 1fr; }
+    .modules-grid { grid-template-columns: 1fr; }
+    .tools-grid { grid-template-columns: repeat(2, 1fr); }
+    .mono-grid { grid-template-columns: 1fr; }
+    .funnel-flow { flex-direction: column; }
+    .funnel-step::after { display: none; }
+    .testimonials-grid { grid-template-columns: 1fr; }
+    .offer-grid { grid-template-columns: 1fr; }
+    .offer-card.featured { transform: none; }
+    footer { padding: 32px 20px; }
+    .footer-inner { flex-direction: column; align-items: flex-start; }
+    .roi-row { gap: 24px; }
+  }
+
+  @media (max-width: 600px) {
+    .flywheel-steps { grid-template-columns: 1fr; }
+    .tools-grid { grid-template-columns: 1fr 1fr; }
+    nav .nav-links { display: none; }
+  }
+
+  /* ─── SCROLL REVEAL ─── */
+  .reveal {
+    opacity: 0;
+    transform: translateY(24px);
+    transition: opacity 0.6s ease, transform 0.6s ease;
+  }
+
+  .reveal.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  /* ─── GLOW LINES ─── */
+  .glow-line {
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--accent), transparent);
+    opacity: 0.3;
+  }
+</style>
+</head>
+<body>
+
+<!-- ─── NAV ─── -->
+<nav>
+  <div class="nav-logo"><span>AI</span> Income System™</div>
+  <a href="#offer" class="nav-cta">Get Instant Access →</a>
+</nav>
+
+<!-- ─── HERO ─── -->
+<section class="hero">
+  <div class="hero-grid-bg"></div>
+  <div class="hero-glow"></div>
+  <div class="hero-glow-2"></div>
+
+  <div class="hero-inner">
+    <div class="hero-badge">A.I. Flywheel Stack™ — Now Available</div>
+
+    <h1>
+      Build a Full<br>
+      <em>AI-Powered Income</em><br>
+      Machine in 72 Hours
+    </h1>
+
+    <p class="hero-sub">
+      The complete system for turning AI tools into a <strong>$5K–$25K/month</strong> content, 
+      automation, and business engine — without an agency, team, or prior experience.
+    </p>
+
+    <div class="hero-actions">
+      <a href="#offer" class="btn-primary">
+        Get Instant Access
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </a>
+      <a href="#modules" class="btn-secondary">See What's Inside ↓</a>
+    </div>
+
+    <div class="price-anchor">
+      <span>Launch price:</span>
+      <span class="strike">$2,997</span>
+      <span class="real-price">$997 Today</span>
+      <span style="color: var(--text-muted)">— Limited founder access</span>
+    </div>
+
+    <div class="hero-proof-bar">
+      <div class="proof-item">
+        <div class="proof-num">2,400<span>+</span></div>
+        <div class="proof-label">Students Enrolled</div>
+      </div>
+      <div class="proof-item">
+        <div class="proof-num">$<span>8.3</span>M</div>
+        <div class="proof-label">Student Revenue Generated</div>
+      </div>
+      <div class="proof-item">
+        <div class="proof-num">72<span>hrs</span></div>
+        <div class="proof-label">To First Asset Live</div>
+      </div>
+      <div class="proof-item">
+        <div class="proof-num">8</div>
+        <div class="proof-label">Core Income Modules</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="glow-line"></div>
+
+<!-- ─── PROBLEM → TRANSFORMATION ─── -->
+<section class="problem-section">
+  <div class="container">
+    <div class="section-label">The Problem</div>
+    <h2 class="section-title reveal">You're Working <em>Harder</em>,<br>Not Building Leverage</h2>
+    <p class="section-sub reveal">Most people trading hours for dollars never escape the cycle. Here's the gap between where you are and where this system takes you.</p>
+
+    <div class="before-after reveal">
+      <div class="ba-col before">
+        <div class="ba-label">❌ Without This System</div>
+        <div class="ba-item">Manually creating content every day with no compounding return</div>
+        <div class="ba-item">Relying on one income stream that can disappear overnight</div>
+        <div class="ba-item">Spending 40+ hours/week on tasks AI could automate in 2</div>
+        <div class="ba-item">No system — just chaos, burnout, and inconsistent revenue</div>
+        <div class="ba-item">Paying for 12 tools you don't know how to connect or monetize</div>
+        <div class="ba-item">Creating content that gets views but never converts to cash</div>
+        <div class="ba-item">Starting from scratch every month — no assets, no flywheel</div>
+      </div>
+
+      <div class="ba-divider">
+        <div class="ba-arrow">→</div>
+      </div>
+
+      <div class="ba-col after">
+        <div class="ba-label">✓ With the A.I. Flywheel Stack™</div>
+        <div class="ba-item">AI creates, publishes, and repurposes your content 24/7 automatically</div>
+        <div class="ba-item">4 active income streams running from a single content system</div>
+        <div class="ba-item">Full business automation stack configured in your first 72 hours</div>
+        <div class="ba-item">A predictable weekly workflow that runs in under 3 hours</div>
+        <div class="ba-item">Every tool monetized and connected into one compounding engine</div>
+        <div class="ba-item">Lead gen, nurture, and conversion all automated — zero manual effort</div>
+        <div class="ba-item">A digital asset portfolio that earns while you sleep</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ─── MECHANISM ─── -->
+<section class="mechanism-section" id="mechanism">
+  <div class="container">
+    <div class="section-label">The Mechanism</div>
+    <h2 class="section-title reveal">The <em>A.I. Flywheel Stack™</em><br>Explained</h2>
+    <p class="section-sub reveal">Not a course. Not a strategy. A repeatable automation architecture that compounds your output, authority, and income with every cycle.</p>
+
+    <div class="flywheel-steps reveal">
+      <div class="fw-step">
+        <div class="fw-num">01</div>
+        <h3>AI Content Engine</h3>
+        <p>Claude + ChatGPT generate a full month of platform-native content in under 2 hours. Scripts, hooks, captions, email sequences — done.</p>
+      </div>
+      <div class="fw-step">
+        <div class="fw-num">02</div>
+        <h3>Automated Distribution</h3>
+        <p>Your content is automatically scheduled, reformatted, and pushed to TikTok, Instagram, YouTube, LinkedIn, and email — simultaneously.</p>
+      </div>
+      <div class="fw-step">
+        <div class="fw-num">03</div>
+        <h3>Lead Capture → Nurture</h3>
+        <p>AI-built lead magnets feed automated email sequences that warm, educate, and convert leads into buyers — without you touching a keyboard.</p>
+      </div>
+      <div class="fw-step">
+        <div class="fw-num">04</div>
+        <h3>Monetization Layer</h3>
+        <p>Every content piece drives traffic to your offer stack — courses, affiliate links, agency services, or licensed systems — generating revenue on autopilot.</p>
+      </div>
+    </div>
+
+    <div style="margin-top: 2px;" class="flywheel-steps reveal">
+      <div class="fw-step">
+        <div class="fw-num">05</div>
+        <h3>Analytics Intelligence</h3>
+        <p>AI analyzes what's converting and auto-optimizes your content strategy. The system gets smarter and more profitable with every cycle.</p>
+      </div>
+      <div class="fw-step">
+        <div class="fw-num">06</div>
+        <h3>Audience Compounding</h3>
+        <p>Each piece of content builds authority and retargets engaged audiences — creating a growing asset that works harder over time, not less.</p>
+      </div>
+      <div class="fw-step">
+        <div class="fw-num">07</div>
+        <h3>Revenue Reinvestment</h3>
+        <p>Profits fund new lead magnets, product expansions, and automated ad campaigns — turning your flywheel into a self-funded growth machine.</p>
+      </div>
+      <div class="fw-step">
+        <div class="fw-num">08</div>
+        <h3>Scale Without Hiring</h3>
+        <p>At $5K/mo, most people hire a team. This system lets you reach $25K+ with the same 3-hour workflow you started with. Pure leverage.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ─── MODULES ─── -->
+<section class="modules-section" id="modules">
+  <div class="container">
+    <div class="section-label">System Breakdown</div>
+    <h2 class="section-title reveal">8 Modules That Build<br>Your Complete <em>AI Empire</em></h2>
+    <p class="section-sub reveal">Every module delivers a tangible, deployable asset. Not theory — working systems you install and run immediately.</p>
+
+    <div class="modules-grid reveal">
+
+      <div class="module-card">
+        <div class="module-num">MODULE 01</div>
+        <h3>AI Content Command Center</h3>
+        <p class="module-outcome">Build a full-stack content operation that produces 30 days of platform-optimized posts, scripts, and email sequences in a single 2-hour session.</p>
+        <div class="module-deliverable">
+          <span>→</span>
+          <span>Deployable: Prompt library + content calendar automation (Claude + ChatGPT workflow)</span>
+        </div>
+      </div>
+
+      <div class="module-card">
+        <div class="module-num">MODULE 02</div>
+        <h3>Automated Lead Magnet System</h3>
+        <p class="module-outcome">Create AI-generated lead magnets that attract your ideal buyer, auto-deliver on opt-in, and trigger a 7-email nurture sequence — fully automated.</p>
+        <div class="module-deliverable">
+          <span>→</span>
+          <span>Deployable: Lead magnet template pack + ConvertKit/Beehiiv automation blueprint</span>
+        </div>
+      </div>
+
+      <div class="module-card">
+        <div class="module-num">MODULE 03</div>
+        <h3>Short-Form Video Domination Engine</h3>
+        <p class="module-outcome">Turn AI-generated scripts into viral TikTok, Reels, and Shorts — with hooks, captions, and trending audio strategies baked into the workflow.</p>
+        <div class="module-deliverable">
+          <span>→</span>
+          <span>Deployable: 50 fill-in-the-blank video prompt templates + CapCut AI editing system</span>
+        </div>
+      </div>
+
+      <div class="module-card">
+        <div class="module-num">MODULE 04</div>
+        <h3>Digital Product Launch Blueprint</h3>
+        <p class="module-outcome">Design, build, and launch a $97–$997 digital product using AI in under a week — complete with a sales page, checkout flow, and post-purchase upsell.</p>
+        <div class="module-deliverable">
+          <span>→</span>
+          <span>Deployable: AI product creation framework + Gumroad/Stan Store launch checklist</span>
+        </div>
+      </div>
+
+      <div class="module-card">
+        <div class="module-num">MODULE 05</div>
+        <h3>Email Monetization Machine</h3>
+        <p class="module-outcome">Build a list that generates $1–$3 per subscriber per month — with AI-written broadcast sequences, automated promos, and affiliate integrations on autopilot.</p>
+        <div class="module-deliverable">
+          <span>→</span>
+          <span>Deployable: 30-day email sequence template + monetization calendar</span>
+        </div>
+      </div>
+
+      <div class="module-card">
+        <div class="module-num">MODULE 06</div>
+        <h3>AI Agency Client Acquisition System</h3>
+        <p class="module-outcome">Package your AI skills into a $1,500–$5,000/month done-for-you service offering — and land your first 3 clients using the outreach system in this module.</p>
+        <div class="module-deliverable">
+          <span>→</span>
+          <span>Deployable: Agency service menu + cold outreach scripts + proposal template</span>
+        </div>
+      </div>
+
+      <div class="module-card">
+        <div class="module-num">MODULE 07</div>
+        <h3>Affiliate Income Integration Layer</h3>
+        <p class="module-outcome">Embed AI tool affiliate links into every piece of content you create — turning your recommendation engine into a passive revenue stream worth $500–$5,000/month.</p>
+        <div class="module-deliverable">
+          <span>→</span>
+          <span>Deployable: Affiliate stack map + content-to-commission integration guide</span>
+        </div>
+      </div>
+
+      <div class="module-card">
+        <div class="module-num">MODULE 08</div>
+        <h3>System Licensing & Scalability Framework</h3>
+        <p class="module-outcome">License your AI system to other creators, coaches, or businesses — creating a recurring revenue stream from the infrastructure you've already built.</p>
+        <div class="module-deliverable">
+          <span>→</span>
+          <span>Deployable: Licensing agreement template + white-label pricing structure</span>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ─── HOW IT WORKS ─── -->
+<section class="workflow-section">
+  <div class="container">
+    <div class="section-label">Execution System</div>
+    <h2 class="section-title reveal">Your Weekly Workflow<br>Runs in <em>3 Hours</em></h2>
+    <p class="section-sub reveal">Simple. Repeatable. Compounding. This is the operating system you follow every week to keep your flywheel spinning.</p>
+
+    <div class="week-timeline reveal">
+
+      <div class="week-item">
+        <div class="week-dot">MON<br>1hr</div>
+        <div class="week-content">
+          <h3>Content Batch Session</h3>
+          <p>Use your AI Content Command Center to generate scripts, captions, hooks, and emails for the entire week in one focused session. Output: 7 videos + 5 emails + 14 social posts.</p>
+          <div class="week-tags">
+            <span class="week-tag">Claude</span>
+            <span class="week-tag">ChatGPT</span>
+            <span class="week-tag">Notion AI</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="week-item">
+        <div class="week-dot">TUE<br>30min</div>
+        <div class="week-content">
+          <h3>Video Production & Scheduling</h3>
+          <p>Record or generate your short-form videos using AI B-roll + voiceover tools. Queue everything in your scheduling platform. Done before lunch.</p>
+          <div class="week-tags">
+            <span class="week-tag">CapCut</span>
+            <span class="week-tag">HeyGen</span>
+            <span class="week-tag">Buffer</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="week-item">
+        <div class="week-dot">WED<br>30min</div>
+        <div class="week-content">
+          <h3>Email & Funnel Review</h3>
+          <p>Check automated sequence performance. AI analyzes open rates and suggests subject line tests. Approve or adjust the next 7 days of nurture emails with one click.</p>
+          <div class="week-tags">
+            <span class="week-tag">Beehiiv</span>
+            <span class="week-tag">ConvertKit</span>
+            <span class="week-tag">Analytics AI</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="week-item">
+        <div class="week-dot">FRI<br>30min</div>
+        <div class="week-content">
+          <h3>Revenue Review + Optimization</h3>
+          <p>Review affiliate commissions, product sales, and lead magnet conversions. Feed performance data back into your AI for next week's content strategy. Rinse. Compound. Repeat.</p>
+          <div class="week-tags">
+            <span class="week-tag">Gumroad</span>
+            <span class="week-tag">Impact</span>
+            <span class="week-tag">Stripe</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ─── TOOL STACK ─── -->
+<section class="tools-section">
+  <div class="container">
+    <div class="section-label">Tool Stack</div>
+    <h2 class="section-title reveal">The Exact <em>Tools</em> Inside<br>Your New Business OS</h2>
+    <p class="section-sub reveal">Every tool is already configured in the system. No setup overwhelm. Each one plays a specific role in your revenue flywheel.</p>
+
+    <div class="tools-grid reveal">
+      <div class="tool-card">
+        <span class="tool-icon">🤖</span>
+        <div class="tool-name">Claude (Anthropic)</div>
+        <div class="tool-purpose">AI Writing Engine</div>
+        <div class="tool-tag">Primary Content Brain</div>
+      </div>
+      <div class="tool-card">
+        <span class="tool-icon">⚡</span>
+        <div class="tool-name">ChatGPT / GPT-4o</div>
+        <div class="tool-purpose">Content + Automation</div>
+        <div class="tool-tag">Secondary AI Layer</div>
+      </div>
+      <div class="tool-card">
+        <span class="tool-icon">🎬</span>
+        <div class="tool-name">HeyGen</div>
+        <div class="tool-purpose">AI Video Generation</div>
+        <div class="tool-tag">Avatar & Voiceover</div>
+      </div>
+      <div class="tool-card">
+        <span class="tool-icon">✂️</span>
+        <div class="tool-name">CapCut AI</div>
+        <div class="tool-purpose">Short-Form Editing</div>
+        <div class="tool-tag">Auto-Cut & Captions</div>
+      </div>
+      <div class="tool-card">
+        <span class="tool-icon">📧</span>
+        <div class="tool-name">Beehiiv</div>
+        <div class="tool-purpose">Email & Newsletter</div>
+        <div class="tool-tag">List + Monetization</div>
+      </div>
+      <div class="tool-card">
+        <span class="tool-icon">🔗</span>
+        <div class="tool-name">Make (Integromat)</div>
+        <div class="tool-purpose">Workflow Automation</div>
+        <div class="tool-tag">System Glue</div>
+      </div>
+      <div class="tool-card">
+        <span class="tool-icon">🛒</span>
+        <div class="tool-name">Stan Store</div>
+        <div class="tool-purpose">Digital Storefront</div>
+        <div class="tool-tag">Products + Links</div>
+      </div>
+      <div class="tool-card">
+        <span class="tool-icon">📅</span>
+        <div class="tool-name">Buffer / Publer</div>
+        <div class="tool-purpose">Social Scheduling</div>
+        <div class="tool-tag">Multi-Platform Push</div>
+      </div>
+      <div class="tool-card">
+        <span class="tool-icon">📊</span>
+        <div class="tool-name">Notion AI</div>
+        <div class="tool-purpose">Operations HQ</div>
+        <div class="tool-tag">System Dashboard</div>
+      </div>
+      <div class="tool-card">
+        <span class="tool-icon">🎨</span>
+        <div class="tool-name">Canva AI</div>
+        <div class="tool-purpose">Visual Content</div>
+        <div class="tool-tag">Brand Assets</div>
+      </div>
+      <div class="tool-card">
+        <span class="tool-icon">💳</span>
+        <div class="tool-name">Gumroad / ThriveCart</div>
+        <div class="tool-purpose">Checkout + Upsells</div>
+        <div class="tool-tag">Revenue Engine</div>
+      </div>
+      <div class="tool-card">
+        <span class="tool-icon">🔎</span>
+        <div class="tool-name">Perplexity AI</div>
+        <div class="tool-purpose">Trend Research</div>
+        <div class="tool-tag">Real-Time Intel</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ─── MONETIZATION ─── -->
+<section class="monetization-section">
+  <div class="container">
+    <div class="section-label">Monetization Paths</div>
+    <h2 class="section-title reveal">Four Income Streams.<br><em>One System.</em></h2>
+    <p class="section-sub reveal">Most online businesses rely on one income source. This system gives you four — all running from the same weekly workflow.</p>
+
+    <div class="mono-grid reveal">
+      <div class="mono-card agency">
+        <div class="mono-revenue">$3K–$10K</div>
+        <div class="mono-period">per month / per client</div>
+        <h3>AI Agency Services</h3>
+        <p>Package your AI skills into done-for-you services that local businesses, coaches, and e-com brands will pay premium rates to access every month.</p>
+        <div class="mono-items">
+          <div class="mono-item">Social media management powered by AI</div>
+          <div class="mono-item">AI content creation retainer</div>
+          <div class="mono-item">Email automation setup + management</div>
+          <div class="mono-item">AI ad copy + landing page services</div>
+        </div>
+      </div>
+      <div class="mono-card brand">
+        <div class="mono-revenue">$2K–$15K</div>
+        <div class="mono-period">per month passive</div>
+        <h3>Personal Brand + Products</h3>
+        <p>Build authority in your niche with AI-powered content, then monetize your audience through courses, digital products, and coaching offers.</p>
+        <div class="mono-items">
+          <div class="mono-item">AI-generated digital products ($27–$997)</div>
+          <div class="mono-item">Newsletter sponsorships + paid subscriptions</div>
+          <div class="mono-item">Coaching and consulting upsells</div>
+          <div class="mono-item">Community memberships</div>
+        </div>
+      </div>
+      <div class="mono-card affiliate">
+        <div class="mono-revenue">$500–$5K</div>
+        <div class="mono-period">per month recurring</div>
+        <h3>Affiliate Income Layer</h3>
+        <p>Every tool you recommend earns you a commission. Your AI content naturally promotes the exact tools your audience needs — creating passive income from every post.</p>
+        <div class="mono-items">
+          <div class="mono-item">SaaS tool affiliates (30–50% recurring)</div>
+          <div class="mono-item">AI platform referral programs</div>
+          <div class="mono-item">Course and info-product partnerships</div>
+          <div class="mono-item">Email platform affiliate commissions</div>
+        </div>
+      </div>
+      <div class="mono-card licensing">
+        <div class="mono-revenue">$1K–$10K</div>
+        <div class="mono-period">per license / one-time</div>
+        <h3>System Licensing</h3>
+        <p>Once your flywheel is built, package and license it to other creators, agencies, or niches. You've already done the work — now sell access to the blueprint.</p>
+        <div class="mono-items">
+          <div class="mono-item">White-label your system for other niches</div>
+          <div class="mono-item">License prompt libraries to agencies</div>
+          <div class="mono-item">Sell customized automation templates</div>
+          <div class="mono-item">Franchise your model to new markets</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ─── FUNNEL ─── -->
+<section class="funnel-section">
+  <div class="container">
+    <div class="section-label">The Funnel Architecture</div>
+    <h2 class="section-title reveal">A System That Sells<br>for You — <em>24/7</em></h2>
+    <p class="section-sub reveal">Every piece of content you publish feeds a conversion machine that runs without you. Here's how the full funnel works.</p>
+
+    <div class="funnel-flow reveal">
+      <div class="funnel-step">
+        <div class="funnel-type">Entry Point</div>
+        <h3>AI Lead Magnet</h3>
+        <p>Free resource captures email — "72-Hour AI System Build Plan" or niche-specific tool guide</p>
+        <div class="funnel-value">$0 — Opt-in asset</div>
+      </div>
+      <div class="funnel-step">
+        <div class="funnel-type">Nurture Phase</div>
+        <h3>Email Automation</h3>
+        <p>7-email sequence builds trust, demonstrates value, and introduces the core offer naturally</p>
+        <div class="funnel-value">$0 — Fully automated</div>
+      </div>
+      <div class="funnel-step">
+        <div class="funnel-type">Core Conversion</div>
+        <h3>AI Income System™</h3>
+        <p>Primary course offer converts warm leads — includes modules, tools, templates, and community</p>
+        <div class="funnel-value">$997 — Core offer</div>
+      </div>
+      <div class="funnel-step">
+        <div class="funnel-type">Revenue Maximizer</div>
+        <h3>Done-With-You Elite</h3>
+        <p>High-ticket upsell for buyers who want live implementation, coaching, and private access</p>
+        <div class="funnel-value">$2,997 — Upsell tier</div>
+      </div>
+    </div>
+
+    <div style="margin-top: 40px; padding: 32px; background: var(--surface2); border: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; gap: 24px; flex-wrap: wrap;" class="reveal">
+      <div>
+        <div style="font-size: 13px; color: var(--text-muted); font-family: 'DM Mono', monospace; letter-spacing: 0.1em; margin-bottom: 8px; text-transform: uppercase;">Average Funnel Math</div>
+        <div style="font-size: 24px; font-weight: 800; letter-spacing: -0.02em;">1,000 leads → 30 buyers → $29,910/mo</div>
+      </div>
+      <a href="#offer" class="btn-primary">Build This Funnel →</a>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ─── SOCIAL PROOF ─── -->
+<section class="proof-section">
+  <div class="container">
+    <div class="section-label">Real Results</div>
+    <h2 class="section-title reveal">The System Works.<br>Here's the <em>Evidence.</em></h2>
+
+    <div class="testimonials-grid reveal">
+
+      <div class="testimonial">
+        <div class="stars">★★★★★</div>
+        <p class="testimonial-text">"I went from posting manually every day for zero results to having a full AI content machine running in 4 days. First month with the system: $4,200 in digital product sales and 3 affiliate commissions."</p>
+        <div class="testimonial-author">
+          <div class="author-avatar">JR</div>
+          <div>
+            <div class="author-name">James R.</div>
+            <div class="author-role">Freelance Designer → AI Agency Owner</div>
+            <div class="result-highlight">$4,200 Month 1</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="testimonial">
+        <div class="stars">★★★★★</div>
+        <p class="testimonial-text">"I had the course, the hustle, and the burnout. What I was missing was a system. The flywheel changed everything. I now work 3 hours a week on content and my email list generates $6K–$8K monthly."</p>
+        <div class="testimonial-author">
+          <div class="author-avatar">SK</div>
+          <div>
+            <div class="author-name">Sarah K.</div>
+            <div class="author-role">Health Coach → AI Content Brand</div>
+            <div class="result-highlight">$7,400 avg/month</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="testimonial">
+        <div class="stars">★★★★★</div>
+        <p class="testimonial-text">"Within 6 weeks I had my first agency client at $2,500/month, my lead magnet was converting at 38%, and my affiliate income had crossed $1,200/month recurring. This is not a course — it's infrastructure."</p>
+        <div class="testimonial-author">
+          <div class="author-avatar">MT</div>
+          <div>
+            <div class="author-name">Marcus T.</div>
+            <div class="author-role">9–5 → Full-Time AI Business</div>
+            <div class="result-highlight">$3,700/mo at 6 weeks</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <div style="margin-top: 2px;" class="testimonials-grid reveal">
+      <div class="testimonial" style="grid-column: span 1;">
+        <div class="stars">★★★★★</div>
+        <p class="testimonial-text">"The module on digital product launches alone is worth 10x the price. I built and launched a $197 product in 5 days and made $3,800 in the first week."</p>
+        <div class="testimonial-author">
+          <div class="author-avatar">AL</div>
+          <div>
+            <div class="author-name">Aisha L.</div>
+            <div class="author-role">Educator → Digital Product Creator</div>
+            <div class="result-highlight">$3,800 launch week</div>
+          </div>
+        </div>
+      </div>
+      <div class="testimonial" style="grid-column: span 2;">
+        <div class="stars">★★★★★</div>
+        <p class="testimonial-text">"I've bought 11 courses on AI and online business. This is the only one that gave me an actual operating system instead of a pile of tactics. I'm now running a 4-stream income business entirely from my laptop — $14,200 last month — and my weekly working hours are under 10. The A.I. Flywheel Stack™ is real."</p>
+        <div class="testimonial-author">
+          <div class="author-avatar">DC</div>
+          <div>
+            <div class="author-name">Derek C.</div>
+            <div class="author-role">Marketing Manager → Independent Operator</div>
+            <div class="result-highlight">$14,200 last month</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ─── OFFER STACK ─── -->
+<section class="offer-section" id="offer">
+  <div class="container">
+    <div class="section-label">The Offer</div>
+    <h2 class="section-title reveal" style="text-align:center;">Choose Your<br><em>Entry Point</em></h2>
+    <p class="section-sub reveal" style="margin: 0 auto 64px; text-align:center;">Every tier includes the complete A.I. Flywheel Stack™ system. Choose based on how fast you want results.</p>
+
+    <div class="offer-grid reveal">
+
+      <div class="offer-card">
+        <div class="offer-tier">Starter Access</div>
+        <div class="offer-price">$97</div>
+        <div class="offer-desc">Order Bump — Add at checkout</div>
+        <div class="offer-name">AI Automation Quick-Start Bundle</div>
+        <div class="offer-features">
+          <div class="offer-feature">72-Hour System Build Checklist</div>
+          <div class="offer-feature">Top 20 AI Prompt Templates</div>
+          <div class="offer-feature">Tool Stack Setup Guide</div>
+          <div class="offer-feature">Lead Magnet Creation Template</div>
+        </div>
+        <a href="#" class="offer-cta">Add to Order</a>
+      </div>
+
+      <div class="offer-card featured">
+        <div class="offer-badge">Most Popular — Best ROI</div>
+        <div class="offer-tier">Core System</div>
+        <div class="offer-price">$997</div>
+        <div class="offer-desc">One-time payment — lifetime access</div>
+        <div class="offer-name">AI-Powered Social Media & Business Automation System</div>
+        <div class="offer-features">
+          <div class="offer-feature">All 8 core modules (video + text)</div>
+          <div class="offer-feature">Complete A.I. Flywheel Stack™ framework</div>
+          <div class="offer-feature">12-tool setup walkthroughs + templates</div>
+          <div class="offer-feature">Full prompt library (200+ prompts)</div>
+          <div class="offer-feature">Automation workflow blueprints (Make/Zapier)</div>
+          <div class="offer-feature">Launch-ready lead magnet system</div>
+          <div class="offer-feature">Private community access</div>
+          <div class="offer-feature">All future updates included</div>
+        </div>
+        <a href="#" class="offer-cta">Get Instant Access →</a>
+      </div>
+
+      <div class="offer-card">
+        <div class="offer-tier">Elite Tier — Upsell</div>
+        <div class="offer-price">$2,997</div>
+        <div class="offer-desc">Core system + done-with-you coaching</div>
+        <div class="offer-name">Done-With-You AI Business Accelerator</div>
+        <div class="offer-features">
+          <div class="offer-feature">Everything in the Core System</div>
+          <div class="offer-feature">4 live group implementation calls</div>
+          <div class="offer-feature">Direct feedback on your funnel + content</div>
+          <div class="offer-feature">Custom AI stack setup for your niche</div>
+          <div class="offer-feature">Agency client acquisition support</div>
+          <div class="offer-feature">90-day revenue accountability plan</div>
+        </div>
+        <a href="#" class="offer-cta">Apply for Elite →</a>
+      </div>
+
+    </div>
+
+    <div class="guarantee-bar reveal">
+      <div class="guarantee-icon">🛡️</div>
+      <div class="guarantee-text">
+        <h4>30-Day "It Works or It's Free" Guarantee</h4>
+        <p>Follow the system for 30 days. If you haven't launched at least one working income stream and seen tangible traction in your funnel, email us for a full refund — no questions, no forms, no friction. We win when you win. That's the only arrangement that makes sense.</p>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ─── URGENCY ─── -->
+<section class="urgency-section">
+  <div class="container">
+    <div class="section-label" style="justify-content:center; margin-bottom: 24px;">The ROI Case</div>
+    <h2>The Cost of Waiting<br>Is <em>Not Zero</em></h2>
+    <p>Every week without this system is another week of manual effort, zero compounding, and income left on the table. The math is not complicated.</p>
+
+    <div class="roi-row">
+      <div class="roi-item">
+        <div class="roi-num">$997</div>
+        <div class="roi-label">One-time investment</div>
+      </div>
+      <div class="roi-item" style="color: var(--text-muted); font-size: 32px; font-weight: 300;">÷</div>
+      <div class="roi-item">
+        <div class="roi-num">30</div>
+        <div class="roi-label">Days to first income</div>
+      </div>
+      <div class="roi-item" style="color: var(--text-muted); font-size: 32px; font-weight: 300;">=</div>
+      <div class="roi-item">
+        <div class="roi-num">$33</div>
+        <div class="roi-label">Cost per day to own this</div>
+      </div>
+    </div>
+
+    <div style="margin-bottom: 48px; padding: 24px; background: var(--surface2); border: 1px solid var(--border-bright); max-width: 600px; margin: 0 auto 48px; text-align: left;">
+      <div style="font-family: 'DM Mono', monospace; font-size: 11px; letter-spacing: 0.12em; color: var(--accent); margin-bottom: 12px; text-transform: uppercase;">First-Client Payback Math</div>
+      <div style="font-size: 16px; color: var(--text); line-height: 1.7;">One agency client at <strong style="color: var(--accent);">$1,500/month</strong> pays back your entire investment in <strong style="color: var(--accent);">21 days</strong>. Everything after that is profit.</div>
+    </div>
+
+    <a href="#offer" class="btn-primary" style="font-size: 16px; padding: 22px 48px;">
+      Start Building Your System →
+    </a>
+    <br><br>
+    <div style="font-family: 'DM Mono', monospace; font-size: 11px; color: var(--text-muted); letter-spacing: 0.1em; text-align: center;">FOUNDER PRICING ENDS SOON — $997 BEFORE PRICE INCREASES TO $1,497</div>
+  </div>
+</section>
+
+<!-- ─── FOOTER ─── -->
+<footer>
+  <div class="footer-inner">
+    <div class="footer-logo"><span>AI</span> Income System™</div>
+    <div class="footer-links">
+      <a href="#">Privacy Policy</a>
+      <a href="#">Terms of Service</a>
+      <a href="#">Earnings Disclaimer</a>
+      <a href="#">Support</a>
+    </div>
+    <div class="footer-copy">© 2025 AI Income System™. All rights reserved.</div>
+  </div>
+  <div style="max-width: 1100px; margin: 24px auto 0; padding-top: 20px; border-top: 1px solid var(--border);">
+    <p style="font-family: 'DM Mono', monospace; font-size: 10px; color: var(--text-muted); line-height: 1.6; letter-spacing: 0.03em;">EARNINGS DISCLAIMER: Results shown are not typical and are not a guarantee of your individual results. Income claims represent exceptional outcomes. Your results will vary based on your effort, experience, and market conditions. This system provides education and tools — success requires consistent implementation.</p>
+  </div>
+</footer>
+
+<script>
+  // Scroll reveal
+  const revealEls = document.querySelectorAll('.reveal');
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach((e, i) => {
+      if (e.isIntersecting) {
+        e.target.style.transitionDelay = (i * 0.05) + 's';
+        e.target.classList.add('visible');
+        io.unobserve(e.target);
+      }
+    });
+  }, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
+
+  revealEls.forEach(el => io.observe(el));
+
+  // Nav scroll effect
+  const nav = document.querySelector('nav');
+  window.addEventListener('scroll', () => {
+    if (window.scrollY > 60) {
+      nav.style.borderBottomColor = 'rgba(255,255,255,0.1)';
+    } else {
+      nav.style.borderBottomColor = 'rgba(255,255,255,0.06)';
+    }
+  });
+</script>
+
+</body>
+</html>
